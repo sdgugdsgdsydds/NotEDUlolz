@@ -1,0 +1,364 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+  <style>
+    :root { --bg:#ffffff; --chrome:#f4f5f7; --field:#ffffff; --line:#d0d5db; --ink:#1f2328; --muted:#6b7280; --accent:#2b6cb0; background: var(--bg); }
+    :root.dark { --bg:#14171a; --chrome:#1f2428; --field:#14171a; --line:#384047; --ink:#e9ecef; --muted:#9aa5b1; --accent:#63a4ff; }
+    .page { width:100%; height:100%; box-sizing:border-box; display:flex; flex-direction:column; background:var(--bg); color:var(--ink); font:14px system-ui,sans-serif; }
+    .top { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; }
+    .stage { flex:1; min-height:0; display:flex; align-items:center; justify-content:center; padding:0 16px 16px; }
+    .browser { width:1000px; height:640px; max-width:100%; max-height:100%; display:flex; flex-direction:column; background:var(--chrome); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+    .page.full .stage { padding:0; }
+    .page.full .browser { width:100%; height:100%; max-width:none; max-height:none; border:0; border-radius:0; }
+    button { font:inherit; color:var(--ink); background:transparent; border:1px solid transparent; border-radius:6px; min-width:30px; height:30px; cursor:pointer; }
+    button:hover { background:var(--line); }
+    .pill { border:1px solid var(--line); border-radius:15px; padding:0 14px; background:var(--chrome); }
+    .tabs { display:flex; gap:6px; }
+    .tab { border:1px solid var(--line); border-radius:15px; padding:0 16px; background:var(--chrome); }
+    .tab.on { background:var(--accent); border-color:var(--accent); color:#fff; }
+    .panel { display:none; flex:1; min-height:0; flex-direction:column; }
+    .panel.on { display:flex; }
+    .bar { display:flex; gap:4px; align-items:center; padding:6px; border-bottom:1px solid var(--line); }
+    form { flex:1; display:flex; gap:6px; margin:0; }
+    .links-body { flex:1; min-height:0; overflow:auto; padding:14px; background:var(--bg); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:10px; }
+    .card { display:flex; align-items:center; gap:4px; border:1px solid var(--line); border-radius:10px; background:var(--chrome); padding:6px 6px 6px 14px; }
+    .card a { flex:1; min-width:0; color:var(--ink); text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .card a:hover { color:var(--accent); }
+    .card small { display:block; color:var(--muted); overflow:hidden; text-overflow:ellipsis; }
+    .hint { color:var(--muted); margin:0 0 12px; }
+    .err { color:#c0392b; margin:0 0 10px; min-height:0; }
+    .tag { color:var(--muted); font-size:12px; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .reset { margin-top:14px; border:1px solid var(--line); padding:0 12px; }
+    input[type="text"] { flex:1; min-width:0; height:30px; padding:0 12px; font:inherit; color:var(--ink); background:var(--field); border:1px solid var(--line); border-radius:15px; }
+    .view { flex:1; position:relative; background:#fff; }
+    iframe { position:absolute; left:0; top:0; width:100%; height:100%; border:0; }
+  </style>
+
+  <foreignObject x="0" y="0" width="100%" height="100%">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="page" id="page">
+
+      <div class="top">
+        <button class="pill" id="theme" title="Switch to dark mode">Dark mode</button>
+        <div class="tabs">
+          <button class="tab on" id="tabBrowser">Browser</button>
+          <button class="tab" id="tabRuffle">Ruffle</button>
+          <button class="tab" id="tabLinks">Links</button>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="browser">
+
+          <div class="panel on" id="panelBrowser">
+            <div class="bar">
+              <button id="back" title="Back">&#8592;</button>
+              <button id="forward" title="Forward">&#8594;</button>
+              <button id="reload" title="Reload">&#8635;</button>
+              <button id="home" title="Home">&#8962;</button>
+              <form id="form">
+                <input id="address" type="text" placeholder="Type a web address or search Wikipedia" />
+              </form>
+              <button id="external" title="Open in a new tab">&#8599;</button>
+              <button id="full" title="Fullscreen">&#9974;</button>
+            </div>
+            <div class="view"><iframe id="frame" title="Browser view"></iframe></div>
+          </div>
+
+          <div class="panel" id="panelRuffle">
+            <div class="bar">
+              <form id="swfForm">
+                <input id="swfUrl" type="text" placeholder="Paste a link to a .swf file, or open one from your computer" />
+              </form>
+              <button id="swfLoad" title="Load link">Load</button>
+              <button id="swfOpen" title="Open a .swf file from your computer">Open file</button>
+              <input id="swfFile" type="file" accept=".swf" style="display:none" />
+              <button id="txtOpen" title="Add the .txt file(s) your game loads, such as a level file">Add .txt</button>
+              <input id="txtFile" type="file" accept=".txt,.xml,.json,.csv,.dat" multiple="multiple" style="display:none" />
+              <span class="tag" id="txtLabel"></span>
+              <button id="full2" title="Fullscreen">&#9974;</button>
+            </div>
+            <div class="view"><iframe id="ruffleFrame" title="Ruffle player"></iframe></div>
+          </div>
+
+
+          <div class="panel" id="panelLinks">
+            <div class="bar">
+              <form id="linkForm">
+                <input id="linkName" type="text" placeholder="Name (e.g. Instagram)" style="flex:0 0 190px" />
+                <input id="linkUrl" type="text" placeholder="Link (e.g. instagram.com/yourname)" />
+              </form>
+              <button id="linkSave" class="pill" title="Add link">Add</button>
+              <button id="linkCancel" title="Cancel editing" style="display:none">Cancel</button>
+              <button id="full3" title="Fullscreen">&#9974;</button>
+            </div>
+            <div class="links-body">
+              <p class="hint">Click a link to open it in a new tab. Use the pencil to edit or the x to remove.</p>
+              <p class="err" id="linkErr"></p>
+              <div class="grid" id="linkGrid"></div>
+              <button class="reset" id="linkReset" title="Restore the starter links">Reset to starter links</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </foreignObject>
+
+  <script><![CDATA[
+    (function () {
+      var HOME = "https://en.wikipedia.org/wiki/Main_Page";
+      // Ruffle is loaded from this folder. Replace "ruffle" with a pinned version, e.g. @ruffle-rs/ruffle@X.Y.Z, to stop it changing under you.
+      var RUFFLE_BASE = "https://cdn.jsdelivr.net/npm/@ruffle-rs/ruffle/";
+
+      var $ = function (id) { return document.getElementById(id); };
+      var root = document.documentElement;
+      var page = $("page"), frame = $("frame"), address = $("address");
+      var stack = [], index = -1;
+
+      // ---------- Browser ----------
+      function normalize(text) {
+        text = text.trim();
+        if (!text) return null;
+        if (/^[a-z][a-z0-9+.-]*:\/\//i.test(text)) return text;
+        if (/^[^\s]+\.[a-z]{2,}([\/?#].*)?$/i.test(text)) return "https://" + text;
+        return "https://en.wikipedia.org/w/index.php?search=" + encodeURIComponent(text);
+      }
+      function show(url) { address.value = url; frame.setAttribute("src", url); }
+      function go(url) { stack = stack.slice(0, index + 1); stack.push(url); index = stack.length - 1; show(url); }
+
+      $("form").addEventListener("submit", function (e) { e.preventDefault(); var u = normalize(address.value); if (u) go(u); });
+      $("back").addEventListener("click", function () { if (index > 0) { index--; show(stack[index]); } });
+      $("forward").addEventListener("click", function () { if (index < stack.length - 1) { index++; show(stack[index]); } });
+      $("reload").addEventListener("click", function () { if (index >= 0) show(stack[index]); });
+      $("home").addEventListener("click", function () { go(HOME); });
+      $("external").addEventListener("click", function () { if (index >= 0) window.open(stack[index], "_blank", "noopener"); });
+
+      // ---------- Light / dark (whole file) ----------
+      var themeBtn = $("theme");
+      themeBtn.addEventListener("click", function () {
+        var dark = !root.classList.contains("dark");
+        root.classList.toggle("dark", dark);
+        themeBtn.textContent = dark ? "Light mode" : "Dark mode";
+        themeBtn.setAttribute("title", dark ? "Switch to light mode" : "Switch to dark mode");
+      });
+
+      // ---------- Fullscreen ----------
+      function toggleFull() {
+        var on = !page.classList.contains("full");
+        page.classList.toggle("full", on);
+        if (on) { try { var p = root.requestFullscreen && root.requestFullscreen(); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
+        else if (document.fullscreenElement) { document.exitFullscreen(); }
+      }
+      $("full").addEventListener("click", toggleFull);
+      $("full2").addEventListener("click", toggleFull);
+      $("full3").addEventListener("click", toggleFull);
+      document.addEventListener("fullscreenchange", function () {
+        if (!document.fullscreenElement) page.classList.remove("full");
+      });
+
+      // ---------- Ruffle (runs in its own small HTML page so custom elements work) ----------
+      var ruffleFrame = $("ruffleFrame");
+      var ruffleLoaded = false, ruffleReady = false, pending = [];
+      var lastLoad = null, extraFiles = [];
+      var END = "</" + "script>";
+
+      var srcdoc =
+        '<!DOCTYPE html><html><head><meta charset="utf-8"><style>' +
+        'html,body{margin:0;height:100%;background:#111;color:#bbb;font:14px system-ui,sans-serif}' +
+        '#c{position:absolute;left:0;top:0;width:100%;height:100%}' +
+        'ruffle-player{display:block;width:100%;height:100%}' +
+        '#msg{position:absolute;left:0;top:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;box-sizing:border-box}' +
+        '</style></head><body>' +
+        '<div id="msg">Paste a link to a .swf file above, or click Open file.</div><div id="c"></div>' +
+        '<script>window.RufflePlayer = { config: { publicPath: ' + JSON.stringify(RUFFLE_BASE) + ' } };' +
+        'window.__files = {};' +
+        '(function () { var realFetch = window.fetch.bind(window);' +
+        ' window.fetch = function (input, init) {' +
+        '  try {' +
+        '   var u = typeof input === "string" ? input : (input && input.url) || String(input);' +
+        '   var name = decodeURIComponent(u.split("#")[0].split("?")[0].split("/").pop()).toLowerCase();' +
+        '   var f = window.__files[name];' +
+        '   if (f) return Promise.resolve(new Response(f.slice(0), { status: 200, headers: { "Content-Type": "text/plain" } }));' +
+        '  } catch (err) {}' +
+        '  return realFetch(input, init); }; })();' + END +
+        '<script src="' + RUFFLE_BASE + 'ruffle.js"></' + 'script>' +
+        '<script>' +
+        'window.addEventListener("message", function (e) {' +
+        '  var d = e.data || {}; if (!d.ruffleCmd || e.source !== parent) return;' +
+        '  if (d.files) { window.__files = {}; d.files.forEach(function (f) { window.__files[f.name.toLowerCase()] = f.data; }); return; }' +
+        '  var msg = document.getElementById("msg"), c = document.getElementById("c");' +
+        '  try {' +
+        '    var r = window.RufflePlayer && window.RufflePlayer.newest && window.RufflePlayer.newest();' +
+        '    if (!r) { msg.style.display = "flex"; msg.textContent = "Ruffle could not load. Check your connection."; return; }' +
+        '    c.innerHTML = ""; var p = r.createPlayer(); c.appendChild(p); msg.style.display = "none";' +
+        '    p.ruffle().load(d.url ? { url: d.url } : { data: new Uint8Array(d.data), base: "https://game.local/" });' +
+        '  } catch (err) { msg.style.display = "flex"; msg.textContent = "Could not start that file: " + err; }' +
+        '});' +
+        END + '</body></html>';
+
+      function sendToRuffle(cmd) {
+        cmd.ruffleCmd = true;
+        if (!ruffleReady) { pending.push(cmd); return; }
+        ruffleFrame.contentWindow.postMessage(cmd, "*");
+      }
+      ruffleFrame.addEventListener("load", function () {
+        ruffleReady = true;
+        pending.splice(0).forEach(function (c) { ruffleFrame.contentWindow.postMessage(c, "*"); });
+      });
+      function startRuffle() {
+        if (ruffleLoaded) return;
+        ruffleLoaded = true;
+        ruffleFrame.setAttribute("srcdoc", srcdoc);
+      }
+
+      function loadSwfUrl() {
+        var u = $("swfUrl").value.trim();
+        if (!u) return;
+        if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(u)) u = "https://" + u;
+        startRuffle();
+        lastLoad = { url: u };
+        sendToRuffle(lastLoad);
+      }
+      $("swfForm").addEventListener("submit", function (e) { e.preventDefault(); loadSwfUrl(); });
+      $("swfLoad").addEventListener("click", loadSwfUrl);
+      $("swfOpen").addEventListener("click", function () { $("swfFile").click(); });
+      $("swfFile").addEventListener("change", function () {
+        var f = this.files && this.files[0];
+        if (!f) return;
+        var reader = new FileReader();
+        reader.onload = function () { startRuffle(); lastLoad = { data: reader.result }; sendToRuffle(lastLoad); };
+        reader.readAsArrayBuffer(f);
+        $("swfUrl").value = f.name;
+        this.value = "";
+      });
+
+      // Extra files (like a level .txt) the game asks for by name
+      $("txtOpen").addEventListener("click", function () { $("txtFile").click(); });
+      $("txtFile").addEventListener("change", function () {
+        var chosen = Array.prototype.slice.call(this.files || []);
+        if (!chosen.length) return;
+        var input = this, left = chosen.length;
+        chosen.forEach(function (f) {
+          var r = new FileReader();
+          r.onload = function () {
+            extraFiles = extraFiles.filter(function (x) { return x.name.toLowerCase() !== f.name.toLowerCase(); });
+            extraFiles.push({ name: f.name, data: r.result });
+            if (--left === 0) {
+              $("txtLabel").textContent = extraFiles.map(function (x) { return x.name; }).join(", ");
+              startRuffle();
+              sendToRuffle({ files: extraFiles });
+              if (lastLoad) sendToRuffle(lastLoad);   // restart the game so it sees the new file
+            }
+          };
+          r.readAsArrayBuffer(f);
+        });
+        input.value = "";
+      });
+
+      // ---------- Tabs ----------
+      function pick(which) {
+        ["browser", "ruffle", "links"].forEach(function (n) {
+          var name = n.charAt(0).toUpperCase() + n.slice(1);
+          $("panel" + name).classList.toggle("on", n === which);
+          $("tab" + name).classList.toggle("on", n === which);
+        });
+      }
+      $("tabBrowser").addEventListener("click", function () { pick("browser"); });
+      $("tabRuffle").addEventListener("click", function () { pick("ruffle"); });
+      $("tabLinks").addEventListener("click", function () { pick("links"); });
+
+      // ---------- Links (editable) ----------
+      // Starter links: change these, or just edit them on the Links tab.
+      var DEFAULT_LINKS = [
+        { name: "skibidifancypants", url: "https://drive.google.com/uc?export=download&id=17Pwz0ypN_nGGvXAGgZh9qzLljh5CxIhm" },
+        { name: "download bfdia2b full", url: "https://drive.google.com/uc?export=download&id=17AncO_od60ZLDoYGKJhRMlCm_9qtOZys" },
+        { name: "idkfa", url: "ixl.com" },
+        { name: "stop begging for links guy go ask nick", url: "ixl.com" },
+        { name: "joey gng", url: "ixl.com" },
+        { name: "6767676", url: "ixl.com" }
+      ];
+      var LINKS_KEY = "miniBrowserLinks";
+      var XHTML = "http://www.w3.org/1999/xhtml";
+      var links, editing = -1;
+
+      function loadLinks() {
+        try {
+          var saved = localStorage.getItem(LINKS_KEY);
+          if (saved) { var a = JSON.parse(saved); if (Array.isArray(a)) return a; }
+        } catch (e) {}
+        return DEFAULT_LINKS.slice();
+      }
+      function saveLinks() { try { localStorage.setItem(LINKS_KEY, JSON.stringify(links)); } catch (e) {} }
+      function el(tag, cls, text) {
+        var e = document.createElementNS(XHTML, tag);
+        if (cls) e.setAttribute("class", cls);
+        if (text != null) e.textContent = text;
+        return e;
+      }
+      function safeUrl(t) {
+        t = t.trim();
+        if (!t) return null;
+        if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(t)) t = "https://" + t;
+        return /^https?:\/\//i.test(t) ? t : null;
+      }
+      function hostOf(u) { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (e) { return u; } }
+
+      function setEditing(i) {
+        editing = i;
+        $("linkSave").textContent = i >= 0 ? "Save" : "Add";
+        $("linkCancel").style.display = i >= 0 ? "" : "none";
+        if (i >= 0) { $("linkName").value = links[i].name; $("linkUrl").value = links[i].url; }
+        else { $("linkName").value = ""; $("linkUrl").value = ""; }
+        $("linkErr").textContent = "";
+      }
+
+      function renderLinks() {
+        var grid = $("linkGrid");
+        while (grid.firstChild) grid.removeChild(grid.firstChild);
+        if (!links.length) { grid.appendChild(el("p", "hint", "No links yet. Add one above.")); return; }
+        links.forEach(function (l, i) {
+          var card = el("div", "card");
+          var a = el("a");
+          a.setAttribute("href", l.url);
+          a.setAttribute("target", "_blank");
+          a.setAttribute("rel", "noopener noreferrer");
+          a.appendChild(document.createTextNode(l.name));
+          a.appendChild(el("small", null, hostOf(l.url)));
+          var edit = el("button", null, "\u270E");
+          edit.setAttribute("title", "Edit");
+          edit.addEventListener("click", function () { setEditing(i); });
+          var del = el("button", null, "\u2715");
+          del.setAttribute("title", "Remove");
+          del.addEventListener("click", function () {
+            links.splice(i, 1); saveLinks();
+            if (editing === i) setEditing(-1); else if (editing > i) editing--;
+            renderLinks();
+          });
+          card.appendChild(a); card.appendChild(edit); card.appendChild(del);
+          grid.appendChild(card);
+        });
+      }
+
+      function submitLink() {
+        var url = safeUrl($("linkUrl").value);
+        if (!url) { $("linkErr").textContent = "Enter a web address that starts with http or https (or just a site like instagram.com)."; return; }
+        var name = $("linkName").value.trim() || hostOf(url);
+        if (editing >= 0) links[editing] = { name: name, url: url }; else links.push({ name: name, url: url });
+        saveLinks();
+        setEditing(-1);
+        renderLinks();
+      }
+      $("linkForm").addEventListener("submit", function (e) { e.preventDefault(); submitLink(); });
+      $("linkSave").addEventListener("click", submitLink);
+      $("linkCancel").addEventListener("click", function () { setEditing(-1); });
+      $("linkReset").addEventListener("click", function () {
+        links = DEFAULT_LINKS.slice(); saveLinks(); setEditing(-1); renderLinks();
+      });
+
+      links = loadLinks();
+      renderLinks();
+
+      go(HOME);
+    })();
+  ]]></script>
+</svg>
