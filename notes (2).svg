@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+  <style><![CDATA[
+    #wrap { box-sizing:border-box; width:100%; height:100%; display:flex; flex-direction:column;
+            padding:14px; gap:10px; font-family:'Segoe UI',system-ui,sans-serif;
+            background:#f6f3ec; color:#2a2238; }
+    #bar { display:flex; justify-content:space-between; align-items:center; font-weight:600; font-size:18px; }
+    #cp, #dl { margin-left:6px; font:inherit; font-size:13px; padding:6px 12px; border-radius:8px; cursor:pointer;
+          border:1px solid rgba(0,0,0,.15); background:#7c5cff; color:#fff; }
+    #t { flex:1; box-sizing:border-box; width:100%; padding:14px; resize:none; outline:none;
+         font:inherit; font-size:16px; line-height:1.5; color:inherit;
+         background:#fff; border:1px solid rgba(0,0,0,.12); border-radius:12px; }
+    #t:focus { border-color:#7c5cff; }
+    #s { font-size:12px; opacity:.6; height:14px; }
+    @media (prefers-color-scheme: dark) {
+      #wrap { background:#14102a; color:#f1eeff; }
+      #t { background:#2a2145; border-color:rgba(255,255,255,.12); }
+    }
+  ]]></style>
+
+  <foreignObject x="0" y="0" width="100%" height="100%">
+    <div xmlns="http://www.w3.org/1999/xhtml" id="wrap">
+      <div id="bar">
+        <span>Notes</span>
+        <span>
+          <button id="cp">Copy all</button>
+          <button id="dl">Download .txt</button>
+        </span>
+      </div>
+      <textarea id="t">https://script.google.com/macros/s/AKfycbw8RPA7mftrknc4Bu7pI3N-j93vLep9LXR2z93ahfzOSwyAuGandQJAd3yEeiaIbyYe/exec</textarea>
+      <div id="s"></div>
+    </div>
+  </foreignObject>
+
+  <script><![CDATA[
+    var KEY = 'svgNotes';
+    var t = document.getElementById('t');
+    var s = document.getElementById('s');
+    var timer;
+
+    // load saved text
+    try { var saved = localStorage.getItem(KEY); if (saved !== null) t.value = saved; } catch (e) {}
+
+    // autosave while typing
+    t.addEventListener('input', function () {
+      s.textContent = 'Saving...';
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        try { localStorage.setItem(KEY, t.value); s.textContent = 'Saved'; }
+        catch (e) { s.textContent = "Couldn't save (storage blocked)"; }
+      }, 400);
+    });
+
+    // copy everything to the clipboard
+    document.getElementById('cp').addEventListener('click', function () {
+      t.focus();
+      t.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      s.textContent = ok ? 'Copied!' : 'Press Ctrl+C to copy';
+    });
+
+    // download as a .txt file
+    document.getElementById('dl').addEventListener('click', function () {
+      var blob = new Blob([t.value], { type: 'text/plain' });
+      var a = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'notes.txt';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+  ]]></script>
+</svg>
